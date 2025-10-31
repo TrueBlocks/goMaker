@@ -2,7 +2,6 @@
 output: docs/content/[[reason]]_[[group]].md
 scope: group
 */
-{{if eq 1 2}}
 {{$reason := "[{REASON}]"}}{{range .GroupList "[{GROUP}]"}}---
 title: "{{.GroupTitle}}"
 description: "{{.Description}}"
@@ -26,4 +25,3 @@ This documentation mentions the following basic data types.
 {{.BaseTypes}}
 
 {{end}}*Copyright (c) 2024, TrueBlocks, LLC. All rights reserved. Generated with goMaker.*{{end}}
-{{end}}
