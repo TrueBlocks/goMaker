@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TrueBlocks/trueblocks-core/goMaker/v5/types"
+	"github.com/TrueBlocks/trueblocks-core/goMaker/v6/types"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v5/pkg/logger"
 )
 
