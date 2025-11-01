@@ -17,7 +17,7 @@ import (
 	// EXISTING_CODE
 	// EXISTING_CODE
 
-{{range .Commands}}{{if ne .Route "daemon"}}{{if ne .Route ""}}	{{toLower .Route}}Pkg "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/internal/{{toLower .Route}}"
+{{range .Commands}}{{if ne .Route "daemon"}}{{if ne .Route ""}}	{{toLower .Route}}Pkg "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/internal/{{toLower .Route}}"
 {{end}}{{end}}{{end}}
 )
 
