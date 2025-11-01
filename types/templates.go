@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v5/pkg/logger"
 )
 
 var codebaseCache map[string]*template.Template

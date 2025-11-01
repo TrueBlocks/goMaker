@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/TrueBlocks/trueblocks-core/goMaker/v5/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v5/pkg/logger"
 )
 
 //go:embed help.txt help_verbose.txt
