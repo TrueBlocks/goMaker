@@ -1,5 +1,5 @@
 /*
-output: src/apps/chifra/sdk/[[route]].go
+output: chifra/sdk/[[route]].go
 scope: route
 */
 
@@ -17,9 +17,9 @@ import (
 	"io"
 	"net/url"
 
-	{{.Pkg}} "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/internal/{{toLower .Route}}"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	outputHelpers "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output/helpers"
+	{{.Pkg}} "github.com/TrueBlocks/trueblocks-chifra/v6/internal/{{toLower .Route}}"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	outputHelpers "github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output/helpers"
 )
 
 // {{toProper .Route}} provides an interface to the command line chifra {{toLower .Route}} through the SDK.

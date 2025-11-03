@@ -10,8 +10,8 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/file"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/file"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 )
 
 var ErrNoTemplateFolder = errors.New("could not find the templates directory")
@@ -80,8 +80,6 @@ func getGeneratorContentsAndDest(fullPath, subPath, group, reason, routeTag, typ
 		dest = processMetadataPath(metadata.Output, routeTag, typeTag, groupTag, reason)
 	} else {
 		logger.ShouldNotHappen("Old style templates should be gone.")
-		// Fall back to filename-based conversion
-		// dest = convertToDestPathLegacy(fullPath, routeTag, typeTag, groupTag, reason)
 	}
 
 	// Now strip metadata from template content
@@ -172,53 +170,6 @@ func processMetadataPath(outputPath, routeTag, typeTag, groupTag, reason string)
 
 	return dest
 }
-
-// // convertToDestPathLegacy is the original filename-based conversion system
-// func convertToDestPathLegacy(source, routeTag, typeTag, groupTag, reason string) string {
-// 	singularWords := map[string]bool{
-// 		"project": true,
-// 		"history": true,
-// 		"session": true,
-// 		"config":  true,
-// 		"wizard":  true,
-// 	}
-// 	viewName := func(s string) string {
-// 		if singularWords[typeTag] {
-// 			return Proper(s)
-// 		}
-// 		return Proper(Plural(typeTag))
-// 	}
-
-// 	dest := strings.ReplaceAll(source, GetTemplatePath(), "")
-// 	dest = strings.ReplaceAll(dest, ".tmpl", "")
-// 	dest = strings.ReplaceAll(dest, "_route_", "/"+routeTag+"/")
-// 	dest = strings.ReplaceAll(dest, "route+internal", routeTag+"+internal")
-// 	dest = strings.ReplaceAll(dest, "_Route_", "/"+Proper(routeTag)+"/")
-// 	dest = strings.ReplaceAll(dest, "Route+internal", Proper(routeTag)+"+internal")
-// 	reps := []string{".go", ".md", ".py", ".ts", ".test"}
-// 	for _, rep := range reps {
-// 		dest = strings.ReplaceAll(dest, "route"+rep, routeTag+rep)
-// 		dest = strings.ReplaceAll(dest, "Route"+rep, Proper(routeTag)+rep)
-// 	}
-// 	dest = strings.ReplaceAll(dest, "+type+", "+"+typeTag+"+")
-// 	dest = strings.ReplaceAll(dest, "_capType", "_"+viewName(typeTag))
-// 	dest = strings.ReplaceAll(dest, "type+sort", typeTag+"+sort")
-// 	dest = strings.ReplaceAll(dest, "type.go", typeTag+".go")
-// 	dest = strings.ReplaceAll(dest, "type.md", typeTag+".md")
-// 	dest = strings.ReplaceAll(dest, "type.ts", typeTag+".ts")
-// 	dest = strings.ReplaceAll(dest, "group.md", groupTag+".md")
-// 	switch reason {
-// 	case "readme":
-// 		dest = strings.ReplaceAll(dest, "_reason_", "_chifra_")
-// 	case "model":
-// 		dest = strings.ReplaceAll(dest, "_reason_", "_data-model_")
-// 	}
-// 	dest = strings.ReplaceAll(dest, "_", "/")
-// 	dest = strings.ReplaceAll(dest, "+", "_")
-// 	// Hack alert
-// 	dest = strings.ReplaceAll(dest, "/src/apps/chifra/pkg/types/", "/src/apps/chifra/pkg/types/types_")
-// 	return strings.ReplaceAll(dest, "//", "/")
-// }
 
 var rootFolder = "src/dev_tools/goMaker/"
 

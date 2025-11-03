@@ -1,12 +1,12 @@
-module github.com/TrueBlocks/trueblocks-core/goMaker/v6
+module github.com/TrueBlocks/goMaker/v6
 
 // Go Version
 go 1.25.1
 
 require (
-	github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6 v6.0.0-20251101182102-54ab897a3998
+	github.com/TrueBlocks/trueblocks-chifra/v6 v6.4.5
 	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
-	golang.org/x/text v0.24.0
+	golang.org/x/text v0.30.0
 )
 
 require (
@@ -44,7 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
-	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/term v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect

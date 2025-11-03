@@ -8,9 +8,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/file"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/logger"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/utils"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/file"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 )
 
 type Command struct {
@@ -553,11 +553,11 @@ func (c *Command) HelpLinks() string {
 	if !c.IsRoute() {
 		tmplName += "2"
 		tmpl = `- no api for this command
-- [source code](https://github.com/TrueBlocks/trueblocks-core/tree/master/src/apps/chifra/internal/{{.Route}})`
+- [source code](https://github.com/TrueBlocks/trueblocks-chifra/tree/master/internal/{{.Route}})`
 	} else {
 		tmplName += "3"
 		tmpl = `- [api docs](/api/#operation/{{.GroupName}}-{{.Route}})
-- [source code](https://github.com/TrueBlocks/trueblocks-core/tree/master/src/apps/chifra/internal/{{.Route}})`
+- [source code](https://github.com/TrueBlocks/trueblocks-chifra/tree/master/internal/{{.Route}})`
 	}
 	return c.executeTemplate(tmplName, tmpl)
 }
