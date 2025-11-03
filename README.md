@@ -13,7 +13,7 @@ users will not use `goMaker`.
 `Notes:`
 
 - You must run this tool from the root of the TrueBlocks repository.
-- Template files are stored in ./src/dev_tools/goMaker/templates.
+- Template files are stored in ./dev-tools/goMaker/templates.
 - No command line options are accepted.
 
 ### Notes on Commands
@@ -58,7 +58,7 @@ with the following fields:
 
 ## Notes on Data Models
 
-The `goMaker` program also generates a huge number of source code files and documentation related to the various data models produced or consumed by the various TrueBlocks tools. These data models are stored in `.toml` files in the `./src/dev_tools/goMaker/templates/classDefinitions` folder and the model's fields (in a `.csv`) are stored in a subfolder called `fields`. There are two files for each data model (a `.toml` and a `.csv`) names identically to the data model's name.
+The `goMaker` program also generates a huge number of source code files and documentation related to the various data models produced or consumed by the various TrueBlocks tools. These data models are stored in `.toml` files in the `./dev-tools/goMaker/templates/classDefinitions` folder and the model's fields (in a `.csv`) are stored in a subfolder called `fields`. There are two files for each data model (a `.toml` and a `.csv`) names identically to the data model's name.
 
 The `.toml` file contains the following fields:
 
@@ -77,7 +77,7 @@ The `.toml` file contains the following fields:
 
 ## Notes on Templates
 
-The `./src/dev_tools/goMaker/templates` folder also contains a number of templates used by the `goMaker` program. The names of these templates corresponds to the location in the repo's paths the generated files will be written. For example, the `./sdk_route.go.tmpl` writes files to the `./sdk` folder. The filename of the file is `<route>.go` where `<route>` is the route of the subcommand. The template name may contain the word "route" or the word "type" which is sequentially replaced with either the routes or the data model types.
+The `./dev-tools/goMaker/templates` folder also contains a number of templates used by the `goMaker` program. The names of these templates corresponds to the location in the repo's paths the generated files will be written. For example, the `./sdk_route.go.tmpl` writes files to the `./sdk` folder. The filename of the file is `<route>.go` where `<route>` is the route of the subcommand. The template name may contain the word "route" or the word "type" which is sequentially replaced with either the routes or the data model types.
 
 ## Fin
 

@@ -4,7 +4,7 @@ This tool generates code for the TrueBlocks project based on template files.
 
 Requirements to run successfully:
   1. A 'templates' folder must exist in one of these locations:
-     - src/dev_tools/goMaker/templates
+     - dev-tools/goMaker/templates
      - code_gen/templates
 
   2. The templates folder must contain:

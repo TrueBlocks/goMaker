@@ -171,7 +171,7 @@ func processMetadataPath(outputPath, routeTag, typeTag, groupTag, reason string)
 	return dest
 }
 
-var rootFolder = "src/dev_tools/goMaker/"
+var rootFolder = "dev-tools/goMaker/"
 
 func getRootFolder() string {
 	return filepath.Join(rootFolder)
@@ -183,7 +183,7 @@ func setRootFolder(folder string) {
 
 func getTemplatesPath() (string, error) {
 	paths := []string{
-		"src/dev_tools/goMaker/",
+		"dev-tools/goMaker/",
 		"code_gen/",
 	}
 
