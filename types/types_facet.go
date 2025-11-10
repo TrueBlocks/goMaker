@@ -18,12 +18,15 @@ type Facet struct {
 	Renderer    string          `toml:"renderer" json:"renderer"`
 	Navigate    string          `toml:"navigate" json:"navigate"`
 	Attributes  string          `json:"attributes"`
+	IsDynamic   bool            `json:"isDynamic" toml:"isDynamic"`
 	stPtr       *Structure      `json:"-"`
 	Disabled    bool            `json:"disabled" toml:"disabled"`
 	NeedsCalcs  bool            `json:"needsCalcs" toml:"needsCalcs"`
 	PanelChart  bool            `json:"panelChart" toml:"panelChart"`
 	FacetChart  bool            `json:"facetChart" toml:"facetChart"`
 	UseMapKey   bool            `json:"useMapKey" toml:"useMapKey"`
+	Hidden      bool            `json:"hidden" toml:"hidden"`
+	Hideable    bool            `json:"hideable" toml:"hideable"`
 }
 
 var allowedViewTypes = map[string]bool{

@@ -544,3 +544,12 @@ func (s *Structure) analyzeRemovePattern() string {
 
 	return "none"
 }
+
+func (s *Structure) HadDynamicFacets() bool {
+	for _, f := range s.Facets {
+		if f.IsDynamic {
+			return true
+		}
+	}
+	return false
+}

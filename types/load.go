@@ -149,7 +149,7 @@ func (cb *CodeBase) LoadMembers(thePath string, structMap map[string]Structure) 
 		mapKey := strings.ToLower(class)
 		structure := structMap[mapKey]
 		if structure.Class == "" {
-			return fmt.Errorf("structure %s not found at mapKey %s", class, mapKey)
+			return fmt.Errorf("structure %s not found at mapKey %s. Is there a TOML file?", class, mapKey)
 		}
 		structure.Members, err = LoadCsv(path, readMember, nil)
 		if err != nil {
