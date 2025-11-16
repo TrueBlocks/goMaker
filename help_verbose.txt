@@ -35,9 +35,17 @@ Generators:
     * Plus signs (+) are converted to underscores (_)
 
 Environment Variables:
+  TB_TEMPLATES_PATH: Override default templates folder location
+    Example: TB_TEMPLATES_PATH=/path/to/custom/templates
+  TB_GENERATORS_PATH: Override generators folder location
+    Example: TB_GENERATORS_PATH=/path/to/custom/generators
+    Allows using different template generators while keeping config files in standard location
   TB_MAKER_SINGLE: Limit processing to a specific source
   TB_GENERATOR_FILTER: Filter what gets generated
   TB_REMOTE_TESTING: Set to 'true' for remote testing behavior
+  
+  Note: goMaker automatically loads environment variables from a .env file
+  in the current directory if present.
 
 Command-line options:
   --help: Display this help text

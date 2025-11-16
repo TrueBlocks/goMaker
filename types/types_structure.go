@@ -105,7 +105,7 @@ func (s *Structure) IsCacheAsGroup() bool {
 }
 
 func (s *Structure) HasNotes() bool {
-	notePath := filepath.Join(GetTemplatePath(), "model-intros/", CamelCase(s.Class)+".notes.md")
+	notePath := filepath.Join(getTemplatePathNoErr(), "model-intros/", CamelCase(s.Class)+".notes.md")
 	return file.FileExists(notePath)
 }
 
@@ -147,7 +147,7 @@ func (s *Structure) GroupName() string {
 func (s *Structure) ModelIntro() string {
 	tmplName := "modelIntro" + s.Class
 	introName := filepath.Join("model-intros", CamelCase(s.Class))
-	fullIntroPath := filepath.Join(GetTemplatePath(), introName+".md")
+	fullIntroPath := filepath.Join(getTemplatePathNoErr(), introName+".md")
 	if !file.FileExists(fullIntroPath) {
 		logger.Fatal("missing model intro file:", fullIntroPath, "            ")
 	}

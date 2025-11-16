@@ -60,6 +60,37 @@ with the following fields:
 
 The `goMaker` program also generates a huge number of source code files and documentation related to the various data models produced or consumed by the various TrueBlocks tools. These data models are stored in `.toml` files in the `./dev-tools/goMaker/templates/classDefinitions` folder and the model's fields (in a `.csv`) are stored in a subfolder called `fields`. There are two files for each data model (a `.toml` and a `.csv`) names identically to the data model's name.
 
+## Environment Variables
+
+`goMaker` supports several environment variables for customization:
+
+- **TB_TEMPLATES_PATH**: Override the default templates folder location
+  - Default: Searches for `dev-tools/goMaker/templates` or `code_gen/templates`
+  - Example: `TB_TEMPLATES_PATH=/custom/path/to/templates`
+
+- **TB_REMOTE_TESTING**: Skip file change validation (used in CI/CD)
+  - Set to `"true"` to disable validation that prevents regeneration
+  - Useful for automated testing environments
+
+- **TB_MAKER_SINGLE**: Generate only specified output type
+  - Limits generation to a specific pattern or type
+  - Example: `TB_MAKER_SINGLE=readme` generates only README files
+
+- **TB_GENERATORS_PATH**: Override generators folder location
+  - Default: Uses `generators` subfolder within templates path
+  - Example: `TB_GENERATORS_PATH=/custom/generators`
+  - Allows using different template generators while keeping config files in standard location
+
+- **TB_GENERATOR_FILTER**: Filter code generation to specific patterns
+  - Allows selective generation based on pattern matching
+  - Example: `TB_GENERATOR_FILTER=api` generates only API-related code
+
+### Environment File Support
+
+`goMaker` automatically loads environment variables from a `.env` file in the current working directory if present. This allows for easy configuration management without setting system environment variables.
+
+Example `.env` file:\n\n```env\nTB_TEMPLATES_PATH=/custom/templates\nTB_MAKER_SINGLE=readme\n```
+
 The `.toml` file contains the following fields:
 
 | Name         | Description                                                                      | Notes                                                                                        |

@@ -84,7 +84,7 @@ func (c *Command) HasPositionals() bool {
 }
 
 func (c *Command) HasExample() bool {
-	examplePath := filepath.Join(GetTemplatePath(), "api/examples/"+c.Route+".json")
+	examplePath := filepath.Join(getTemplatePathNoErr(), "api/examples/"+c.Route+".json")
 	return file.FileExists(examplePath)
 }
 
@@ -477,7 +477,7 @@ func (c *Command) TestLogs() string {
 }
 
 func (c *Command) PackageComments() string {
-	docsPath := filepath.Join(GetTemplatePath(), "readme-intros/"+c.Route+".md")
+	docsPath := filepath.Join(getTemplatePathNoErr(), "readme-intros/"+c.Route+".md")
 	lines := file.AsciiFileToLines(docsPath)
 
 	ret := []string{"// " + c.Route + "Pkg implements the chifra " + c.Route + " command.\n//"}
@@ -500,7 +500,7 @@ func (c *Command) IsRoute() bool {
 }
 
 func (c *Command) Example() string {
-	examplePath := filepath.Join(GetTemplatePath(), "api/examples/"+c.Route+".json")
+	examplePath := filepath.Join(getTemplatePathNoErr(), "api/examples/"+c.Route+".json")
 	contents := strings.Trim(file.AsciiFileToString(examplePath), ws)
 	contents = strings.ReplaceAll(contents, "\n", "\n                  ")
 	return strings.Trim(contents, ws) + "\n"
@@ -511,7 +511,7 @@ func (c *Command) ReadmeName() string {
 }
 
 func (c *Command) HelpIntro() string {
-	readmePath := filepath.Join(GetTemplatePath(), "readme-intros/", c.ReadmeName())
+	readmePath := filepath.Join(getTemplatePathNoErr(), "readme-intros/", c.ReadmeName())
 	tmplName := "helpIntro" + c.ReadmeName()
 	tmpl := file.AsciiFileToString(readmePath)
 	if tmpl == "" {
@@ -524,7 +524,7 @@ func (c *Command) HelpIntro() string {
 }
 
 func (c *Command) HelpText() string {
-	readmePath := filepath.Join(GetTemplatePath(), c.ReadmeName()+".tmp")
+	readmePath := filepath.Join(getTemplatePathNoErr(), c.ReadmeName()+".tmp")
 	defer os.Remove(readmePath)
 	utils.System("chifra " + c.Route + " --help 2>" + readmePath)
 	helpText := strings.Trim(file.AsciiFileToString(readmePath), wss)
@@ -563,7 +563,7 @@ func (c *Command) HelpLinks() string {
 }
 
 func (c *Command) ReadmeFooter() string {
-	footerFile := filepath.Join(GetTemplatePath(), "readme-intros/README.footer.md")
+	footerFile := filepath.Join(getTemplatePathNoErr(), "readme-intros/README.footer.md")
 	return strings.Trim(file.AsciiFileToString(footerFile), ws)
 }
 

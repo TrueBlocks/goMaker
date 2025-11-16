@@ -11,8 +11,8 @@ func (item *CodeBase) ProcessGroupFile(source, group, reason string) error {
 	VerboseLog("Processing group file:", source, "for group:", group, "reason:", reason)
 
 	cwd, _ := os.Getwd()
-	fullPath := filepath.Join(cwd, GetTemplatePath(), source)
 	subPath := "groups"
+	fullPath := filepath.Join(cwd, getGeneratorsPath(), subPath, source)
 	if ok, err := shouldProcess(fullPath, subPath, "codebase"); err != nil {
 		return err
 	} else if !ok {

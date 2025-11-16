@@ -1,8 +1,8 @@
 package types
 
 import (
+	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
@@ -30,6 +30,9 @@ func (cb *CodeBase) Generate() {
 	cb.verifyValidators()
 
 	generatedPath := GetGeneratedPath()
+	if !file.FolderExists(generatedPath) {
+		logger.Fatal(fmt.Sprintf("generatedPath %s is empty", generatedPath))
+	}
 	VerboseLog("Creating generated code directory at", generatedPath)
 	_ = file.EstablishFolder(generatedPath)
 
@@ -92,6 +95,8 @@ func (cb *CodeBase) Generate() {
 					}
 				}
 			}
+		default:
+			logger.Fatal("unknown against value: ", generator.Against)
 		}
 	}
 	logger.Info(colors.Green + "Done..." + strings.Repeat(" ", 120) + colors.Off + "\033[K")
@@ -99,11 +104,10 @@ func (cb *CodeBase) Generate() {
 
 // getGenerators returns the generators we will be using
 func getGenerators() ([]Generator, error) {
-	thePath, err := getTemplatesPath()
-	if err != nil {
-		return []Generator{}, err
+	generatorsPath := getGeneratorsPath() + "/"
+	if !file.FolderExists(generatorsPath) {
+		return []Generator{}, fmt.Errorf("generatorsPath (%s) not found", generatorsPath)
 	}
-	generatorsPath := filepath.Join(thePath, "generators/") + "/"
 	VerboseLog("Looking for templates in:", generatorsPath)
 
 	theMap := make(map[string][]string)
@@ -117,10 +121,20 @@ func getGenerators() ([]Generator, error) {
 		}
 		if isTemplate {
 			VerboseLog("  Found template:", file)
-			file = strings.ReplaceAll(file, generatorsPath, "")
-			if strings.Contains(file, string(os.PathSeparator)) {
-				parts := strings.Split(file, string(os.PathSeparator))
-				theMap[parts[0]] = append(theMap[parts[0]], file)
+			// Strip the generators path prefix to get relative path from generators/
+			relPath := file
+
+			// Find the index of "generators/" in the path
+			generatorsIndex := strings.Index(file, "generators/")
+			if generatorsIndex != -1 {
+				// Extract path after "generators/"
+				relPath = file[generatorsIndex+len("generators/"):]
+			}
+
+			if strings.Contains(relPath, string(os.PathSeparator)) {
+				parts := strings.Split(relPath, string(os.PathSeparator))
+				category := parts[0] // This should be codebase, routes, types, or groups
+				theMap[category] = append(theMap[category], file)
 			}
 		}
 		return true, nil
@@ -136,7 +150,17 @@ func getGenerators() ([]Generator, error) {
 		}
 		sort.Strings(templates)
 		for _, template := range templates {
-			template = strings.ReplaceAll(template, g.Against+"/", "")
+			// Extract just the filename from the full path
+			// Find the index of "generators/" in the path and get path after it
+			generatorsIndex := strings.Index(template, "generators/")
+			if generatorsIndex != -1 {
+				// Get path after "generators/"
+				relPath := template[generatorsIndex+len("generators/"):]
+				// Remove the category part (against/) to get just the template filename
+				if strings.HasPrefix(relPath, against+"/") {
+					template = strings.TrimPrefix(relPath, against+"/")
+				}
+			}
 			g.Templates = append(g.Templates, template)
 		}
 		ret = append(ret, g)

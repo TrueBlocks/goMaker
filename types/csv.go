@@ -17,17 +17,17 @@ type Validater interface {
 // LoadCsv loads a csv file into a Validater (which is any type that implements the Validate() method).
 // The callBack function is called for each record in the csv file. If the callBack function returns false,
 // the record is skipped. If the callBack function returns an error, the function quits and returns the error.
-func LoadCsv[T Validater, D any](thePath string, callBack func(*T, *D) (bool, error), data *D) ([]T, error) {
-	lines := file.AsciiFileToLines(thePath)
+func LoadCsv[T Validater, D any](basePath string, callBack func(*T, *D) (bool, error), data *D) ([]T, error) {
+	lines := file.AsciiFileToLines(basePath)
 
-	isCommandFile := strings.Contains(thePath, "cmd-line-options.csv")
-	isBaseTypes := strings.Contains(thePath, "base-types.csv")
+	isCommandFile := strings.Contains(basePath, "cmd-line-options.csv")
+	isBaseTypes := strings.Contains(basePath, "base-types.csv")
 	if !isCommandFile && !isBaseTypes {
 		requiredColumns := []string{"name", "type", "docOrder", "description"}
 		joinedLines := strings.Join(lines, "\n")
 		for _, col := range requiredColumns {
 			if !strings.Contains(joinedLines, col) {
-				return nil, fmt.Errorf("no %s column found in %s", col, thePath)
+				return nil, fmt.Errorf("no %s column found in %s", col, basePath)
 			}
 		}
 	}
@@ -38,9 +38,9 @@ func LoadCsv[T Validater, D any](thePath string, callBack func(*T, *D) (bool, er
 			noComments = append(noComments, lines[i])
 		}
 	}
-	thePath += ".tmp"
-	_ = file.StringToAsciiFile(thePath, strings.Join(noComments, "\n"))
-	defer os.Remove(thePath)
+	basePath += ".tmp"
+	_ = file.StringToAsciiFile(basePath, strings.Join(noComments, "\n"))
+	defer os.Remove(basePath)
 
 	records := make([]T, 0)
 	callbackFunc := func(record T) error {
@@ -56,7 +56,7 @@ func LoadCsv[T Validater, D any](thePath string, callBack func(*T, *D) (bool, er
 		return nil
 	}
 
-	if theFile, err := os.OpenFile(thePath, os.O_RDWR, os.ModePerm); err != nil {
+	if theFile, err := os.OpenFile(basePath, os.O_RDWR, os.ModePerm); err != nil {
 		return []T{}, err
 	} else {
 		defer theFile.Close()

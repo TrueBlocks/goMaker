@@ -16,18 +16,29 @@ import (
 // LoadCodebase loads the two csv files and returns the codebase which
 // contains all the commands (each with its own set of options).
 func LoadCodebase() (CodeBase, error) {
-	thePath, err := getTemplatesPath()
-	if err != nil {
-		return CodeBase{}, err
-	}
-
-	baseTypes, err := LoadCsv(filepath.Join(thePath, "base-types.csv"), readStructure, nil)
+	thePath, err := getTemplatePath()
 	if err != nil {
 		return CodeBase{}, err
 	}
 
 	var cb CodeBase
-	options, err := LoadCsv(filepath.Join(thePath, "cmd-line-options.csv"), readCmdOption, nil)
+
+	baseTypesPath := filepath.Join(thePath, "base-types.csv")
+	logger.InfoBG("baseTypesPath", baseTypesPath)
+	if !file.FileExists(baseTypesPath) {
+		return cb, fmt.Errorf("baseTypesPath (%s) not found - quitting", baseTypesPath)
+	}
+	baseTypes, err := LoadCsv(baseTypesPath, readStructure, nil)
+	if err != nil {
+		return cb, err
+	}
+
+	cmdLinePath := filepath.Join(thePath, "cmd-line-options.csv")
+	logger.InfoBG("cmdLinePath", cmdLinePath)
+	if !file.FileExists(cmdLinePath) {
+		return cb, fmt.Errorf("cmdLinePath (%s) not found - quitting", cmdLinePath)
+	}
+	options, err := LoadCsv(cmdLinePath, readCmdOption, nil)
 	if err != nil {
 		return cb, err
 	}
@@ -36,13 +47,21 @@ func LoadCodebase() (CodeBase, error) {
 		return cb, err
 	}
 
+	classDefPath := filepath.Join(thePath, "classDefinitions/")
+	logger.InfoBG("classDefPath", classDefPath)
+	if !file.FolderExists(classDefPath) {
+		return cb, fmt.Errorf("classDefPath (%s) not found - quitting", classDefPath)
+	}
 	structMap := make(map[string]Structure)
-	err = cb.LoadStructures(filepath.Join(thePath, "classDefinitions/"), readStructure, structMap)
+	err = cb.LoadStructures(classDefPath, readStructure, structMap)
 	if err != nil {
 		return cb, err
 	}
+	if len(structMap) == 0 {
+		return cb, fmt.Errorf("no structures were loaded from %s - quitting", classDefPath)
+	}
 
-	err = cb.LoadMembers(filepath.Join(thePath, "classDefinitions/"), structMap)
+	err = cb.LoadMembers(classDefPath, structMap)
 	if err != nil {
 		return cb, err
 	}
@@ -72,8 +91,8 @@ func readStructure(st *Structure, data *any) (bool, error) {
 	return true, nil
 }
 
-func (cb *CodeBase) LoadStructures(thePath string, callBack func(*Structure, *any) (bool, error), structMap map[string]Structure) error {
-	if err := filepath.Walk(thePath, func(path string, info fs.FileInfo, err error) error {
+func (cb *CodeBase) LoadStructures(basePath string, callBack func(*Structure, *any) (bool, error), structMap map[string]Structure) error {
+	if err := filepath.Walk(basePath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -135,8 +154,8 @@ func (cb *CodeBase) LoadStructures(thePath string, callBack func(*Structure, *an
 	return nil
 }
 
-func (cb *CodeBase) LoadMembers(thePath string, structMap map[string]Structure) error {
-	if err := filepath.Walk(thePath, func(path string, info fs.FileInfo, err error) error {
+func (cb *CodeBase) LoadMembers(basePath string, structMap map[string]Structure) error {
+	if err := filepath.Walk(basePath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

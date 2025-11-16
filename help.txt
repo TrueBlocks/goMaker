@@ -14,6 +14,8 @@ Requirements to run successfully:
      - generators/: Contains template files (.tmpl) for code generation
 
 Environment Variables:
+  TB_TEMPLATES_PATH: Override default templates folder location
+  TB_GENERATORS_PATH: Override generators folder location (defaults to templates/generators)
   TB_MAKER_SINGLE: Limit processing to a specific source
   TB_GENERATOR_FILTER: Filter what gets generated
   TB_REMOTE_TESTING: Set to 'true' for remote testing behavior

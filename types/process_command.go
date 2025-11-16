@@ -9,8 +9,8 @@ import (
 // writing the result to the destination.
 func (item *Command) ProcessFile(source, group, reason string) error {
 	cwd, _ := os.Getwd()
-	fullPath := filepath.Join(cwd, GetTemplatePath(), source)
 	subPath := "routes"
+	fullPath := filepath.Join(cwd, getGeneratorsPath(), subPath, source)
 	if ok, err := shouldProcess(fullPath, subPath, item.Route); err != nil {
 		return err
 	} else if !ok {

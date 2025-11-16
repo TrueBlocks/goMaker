@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -23,6 +24,7 @@ type TemplateMetadata struct {
 }
 
 func shouldProcess(source, subPath, tag string) (bool, error) {
+	_ = subPath
 	single := os.Getenv("TB_MAKER_SINGLE")
 	if single != "" && !strings.Contains(source, single) {
 		// logger.Warn("skipping ", source, " because of ", single)
@@ -54,7 +56,7 @@ func shouldProcess(source, subPath, tag string) (bool, error) {
 		}
 	}
 
-	source = strings.ReplaceAll(source, "/templates/", "/templates/generators/"+subPath+"/")
+	// source should already be the complete path to the file, no need to modify it
 	if !file.FileExists(source) {
 		return false, fmt.Errorf("file does not exist %s", source)
 	}
@@ -64,7 +66,9 @@ func shouldProcess(source, subPath, tag string) (bool, error) {
 
 // getGeneratorContentsAndDest processes a template file and returns both cleaned content and destination path
 func getGeneratorContentsAndDest(fullPath, subPath, group, reason, routeTag, typeTag, groupTag string) (string, string) {
-	gPath := strings.ReplaceAll(fullPath, "/templates/", "/templates/generators/"+subPath+"/")
+	_ = subPath
+	// fullPath should already include the complete path to the generator file
+	gPath := fullPath
 	if !file.FileExists(gPath) {
 		logger.Fatal("Could not find generator file: ", gPath)
 	}
@@ -172,6 +176,9 @@ func processMetadataPath(outputPath, routeTag, typeTag, groupTag, reason string)
 }
 
 var rootFolder = "dev-tools/goMaker/"
+var cachedTemplatesPath string
+var templatesPathError error
+var templatesPathOnce sync.Once
 
 func getRootFolder() string {
 	return filepath.Join(rootFolder)
@@ -181,32 +188,67 @@ func setRootFolder(folder string) {
 	rootFolder = folder
 }
 
-func getTemplatesPath() (string, error) {
-	paths := []string{
-		"dev-tools/goMaker/",
-		"code_gen/",
-	}
-
-	attemptedPaths := []string{}
-
-	for _, path := range paths {
-		thePath := filepath.Join(path, "templates")
-		if file.FolderExists(thePath) {
-			setRootFolder(path)
-			return thePath, nil
+func getTemplatePath() (string, error) {
+	templatesPathOnce.Do(func() {
+		if envPath := os.Getenv("TB_TEMPLATES_PATH"); envPath != "" {
+			if file.FolderExists(envPath) {
+				if strings.HasSuffix(envPath, "/templates") {
+					rootPath := strings.TrimSuffix(envPath, "/templates")
+					setRootFolder(rootPath)
+				} else if strings.HasSuffix(envPath, "templates") {
+					rootPath := strings.TrimSuffix(envPath, "templates")
+					setRootFolder(rootPath)
+				}
+				cachedTemplatesPath = envPath
+				return
+			} else {
+				templatesPathError = fmt.Errorf("TB_TEMPLATES_PATH environment variable points to non-existent directory: %s", envPath)
+				return
+			}
 		}
-		attemptedPaths = append(attemptedPaths, thePath)
-	}
 
-	return "", fmt.Errorf("%w [%s]", ErrNoTemplateFolder, strings.Join(attemptedPaths, ", "))
+		paths := []string{
+			"dev-tools/goMaker/",
+			"code_gen/",
+		}
+
+		attemptedPaths := []string{}
+
+		for _, path := range paths {
+			thePath := filepath.Join(path, "templates")
+			if file.FolderExists(thePath) {
+				setRootFolder(path)
+				cachedTemplatesPath = thePath
+				return
+			}
+			attemptedPaths = append(attemptedPaths, thePath)
+		}
+
+		templatesPathError = fmt.Errorf("%w [%s]", ErrNoTemplateFolder, strings.Join(attemptedPaths, ", "))
+	})
+
+	return cachedTemplatesPath, templatesPathError
 }
 
-func GetTemplatePath() string {
-	return filepath.Join(getRootFolder(), "templates/")
+// getTemplatePathNoErr returns the templates path without error handling for backward compatibility
+func getTemplatePathNoErr() string {
+	thePath, _ := getTemplatePath()
+	return thePath
+}
+
+// getGeneratorsPath returns the path to the generators folder, checking for TB_GENERATORS_PATH override
+func getGeneratorsPath() string {
+	if genPath := os.Getenv("TB_GENERATORS_PATH"); genPath != "" {
+		if !strings.HasSuffix(genPath, "/") {
+			genPath += "/"
+		}
+		return genPath
+	}
+	return filepath.Join(getTemplatePathNoErr(), "generators")
 }
 
 func getTemplateContents(fnIn string) string {
-	fn := filepath.Join(GetTemplatePath(), fnIn+".md")
+	fn := filepath.Join(getTemplatePathNoErr(), fnIn+".md")
 	content := file.AsciiFileToString(fn)
 	if err := ValidateTemplate(content, fn); err != nil {
 		logger.Fatal(err)

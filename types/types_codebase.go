@@ -38,7 +38,7 @@ func (cb *CodeBase) Version(verbose bool) string {
 
 // Description - returns the description of the codebase for the openapi.yaml file
 func (cb *CodeBase) Description() string {
-	apiPath := filepath.Join(GetTemplatePath(), "api/description.txt")
+	apiPath := filepath.Join(getTemplatePathNoErr(), "api/description.txt")
 	return strings.Trim(file.AsciiFileToString(apiPath), ws)
 }
 

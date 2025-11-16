@@ -12,8 +12,8 @@ func (item *Structure) ProcessFile(sourceIn, group, reason string) error {
 	VerboseLog("Processing structure file:", sourceIn, "for type:", item.Name())
 
 	cwd, _ := os.Getwd()
-	fullPath := filepath.Join(cwd, GetTemplatePath(), sourceIn)
 	subPath := "types"
+	fullPath := filepath.Join(cwd, getGeneratorsPath(), subPath, sourceIn)
 	if ok, err := shouldProcess(fullPath, subPath, item.Class); err != nil {
 		return err
 	} else if !ok {

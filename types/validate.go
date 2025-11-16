@@ -17,11 +17,14 @@ var (
 )
 
 func (cb *CodeBase) isValidSetup() error {
-	templatesPath := GetTemplatePath()
+	thePath, err := getTemplatePath()
+	if err != nil {
+		return err
+	}
 
 	// Check if templates folder exists but is empty
 	isEmpty := true
-	files, err := filepath.Glob(filepath.Join(templatesPath, "*"))
+	files, err := filepath.Glob(filepath.Join(thePath, "*"))
 	if err == nil && len(files) > 0 {
 		isEmpty = false
 	}
@@ -30,8 +33,8 @@ func (cb *CodeBase) isValidSetup() error {
 		return ErrEmptyTemplatesFolder
 	}
 
-	cmdLineOptionsExists := file.FileExists(filepath.Join(templatesPath, "cmd-line-options.csv"))
-	classDefPath := filepath.Join(templatesPath, "classDefinitions")
+	cmdLineOptionsExists := file.FileExists(filepath.Join(thePath, "cmd-line-options.csv"))
+	classDefPath := filepath.Join(thePath, "classDefinitions")
 	classDefFolderExists := file.FolderExists(classDefPath)
 
 	hasTomlFiles := false

@@ -13,7 +13,7 @@ func (c *Command) HasNotes() bool {
 }
 
 func (c *Command) HelpNotes() string {
-	readmePath := filepath.Join(GetTemplatePath(), "readme-intros", c.ReadmeName())
+	readmePath := filepath.Join(getTemplatePathNoErr(), "readme-intros", c.ReadmeName())
 	readmePath = strings.ReplaceAll(readmePath, ".md", ".notes.md")
 	if file.FileExists(readmePath) {
 		tmplName := "Notes" + c.ReadmeName()
