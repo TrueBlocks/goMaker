@@ -38,8 +38,7 @@ func showHelp() {
 }
 
 func main() {
-	// Load .env file if it exists (silently ignore if not found)
-	_ = godotenv.Load()
+	_ = godotenv.Load(".env", ".env.paths")
 
 	showHelpFlag := false
 	for _, arg := range os.Args {
