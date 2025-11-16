@@ -29,7 +29,11 @@ func (c *CodeBase) String() string {
 
 // Version - returns the version of the codebase
 func (cb *CodeBase) Version(verbose bool) string {
-	vers := strings.Trim(file.AsciiFileToString("VERSION"), "\n\r")
+	versionFile := file.AsciiFileToString("VERSION")
+	if !file.FileExists(versionFile) {
+		versionFile = file.AsciiFileToString("../VERSION")
+	}
+	vers := strings.Trim(versionFile, "\n\r")
 	if verbose {
 		vers = "GHC-TrueBlocks//" + vers
 	}

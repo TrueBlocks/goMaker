@@ -24,7 +24,6 @@ func LoadCodebase() (CodeBase, error) {
 	var cb CodeBase
 
 	baseTypesPath := filepath.Join(thePath, "base-types.csv")
-	logger.InfoBG("baseTypesPath", baseTypesPath)
 	if !file.FileExists(baseTypesPath) {
 		return cb, fmt.Errorf("baseTypesPath (%s) not found - quitting", baseTypesPath)
 	}
@@ -34,7 +33,6 @@ func LoadCodebase() (CodeBase, error) {
 	}
 
 	cmdLinePath := filepath.Join(thePath, "cmd-line-options.csv")
-	logger.InfoBG("cmdLinePath", cmdLinePath)
 	if !file.FileExists(cmdLinePath) {
 		return cb, fmt.Errorf("cmdLinePath (%s) not found - quitting", cmdLinePath)
 	}
@@ -48,7 +46,6 @@ func LoadCodebase() (CodeBase, error) {
 	}
 
 	classDefPath := filepath.Join(thePath, "classDefinitions/")
-	logger.InfoBG("classDefPath", classDefPath)
 	if !file.FolderExists(classDefPath) {
 		return cb, fmt.Errorf("classDefPath (%s) not found - quitting", classDefPath)
 	}

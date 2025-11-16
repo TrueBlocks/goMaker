@@ -191,14 +191,21 @@ func setRootFolder(folder string) {
 func getTemplatePath() (string, error) {
 	templatesPathOnce.Do(func() {
 		if envPath := os.Getenv("TB_TEMPLATES_PATH"); envPath != "" {
+			if !strings.HasSuffix(envPath, "/") {
+				envPath += "/"
+			}
+			if !strings.HasSuffix(envPath, "templates/") {
+				templatesPathError = fmt.Errorf("TB_TEMPLATES_PATH must end with 'templates/', got: %s", envPath)
+				return
+			}
 			if file.FolderExists(envPath) {
-				if strings.HasSuffix(envPath, "/templates") {
-					rootPath := strings.TrimSuffix(envPath, "/templates")
-					setRootFolder(rootPath)
-				} else if strings.HasSuffix(envPath, "templates") {
-					rootPath := strings.TrimSuffix(envPath, "templates")
-					setRootFolder(rootPath)
+				classDefPath := filepath.Join(envPath, "classDefinitions")
+				if !file.FolderExists(classDefPath) {
+					templatesPathError = fmt.Errorf("TB_TEMPLATES_PATH points to %s but classDefinitions subfolder does not exist", envPath)
+					return
 				}
+				rootPath := strings.TrimSuffix(envPath, "/templates/")
+				setRootFolder(rootPath)
 				cachedTemplatesPath = envPath
 				return
 			} else {
@@ -208,23 +215,27 @@ func getTemplatePath() (string, error) {
 		}
 
 		paths := []string{
-			"dev-tools/goMaker/",
-			"code_gen/",
+			"./code_gen/templates",
+			"../dev-tools/goMaker/templates",
+			"./dev-tools/goMaker/templates",
 		}
 
-		attemptedPaths := []string{}
-
-		for _, path := range paths {
-			thePath := filepath.Join(path, "templates")
-			if file.FolderExists(thePath) {
-				setRootFolder(path)
+		for _, thePath := range paths {
+			classDefPath := filepath.Join(thePath, "classDefinitions")
+			if file.FolderExists(classDefPath) {
+				if strings.HasSuffix(thePath, "/templates") {
+					rootPath := strings.TrimSuffix(thePath, "/templates")
+					setRootFolder(rootPath)
+				} else if strings.HasSuffix(thePath, "templates") {
+					rootPath := strings.TrimSuffix(thePath, "templates")
+					setRootFolder(rootPath)
+				}
 				cachedTemplatesPath = thePath
 				return
 			}
-			attemptedPaths = append(attemptedPaths, thePath)
 		}
 
-		templatesPathError = fmt.Errorf("%w [%s]", ErrNoTemplateFolder, strings.Join(attemptedPaths, ", "))
+		templatesPathError = fmt.Errorf("could not find templates directory with classDefinitions subfolder in any of: %s", strings.Join(paths, ", "))
 	})
 
 	return cachedTemplatesPath, templatesPathError
@@ -238,13 +249,33 @@ func getTemplatePathNoErr() string {
 
 // getGeneratorsPath returns the path to the generators folder, checking for TB_GENERATORS_PATH override
 func getGeneratorsPath() string {
-	if genPath := os.Getenv("TB_GENERATORS_PATH"); genPath != "" {
-		if !strings.HasSuffix(genPath, "/") {
-			genPath += "/"
+	if envPath := os.Getenv("TB_GENERATORS_PATH"); envPath != "" {
+		if !strings.HasSuffix(envPath, "/") {
+			envPath += "/"
 		}
-		return genPath
+		if !file.FolderExists(envPath) {
+			logger.Fatal("TB_GENERATORS_PATH env variable points to non-existent folder: %s", envPath)
+		}
+		if !strings.HasSuffix(envPath, "generators/") {
+			logger.Fatal("TB_GENERATORS_PATH must end with 'generators', got: %s", envPath)
+		}
+		return envPath
 	}
-	return filepath.Join(getTemplatePathNoErr(), "generators")
+
+	paths := []string{
+		"./code_gen/templates/generators",
+		"../dev-tools/goMaker/templates/generators",
+		"./dev-tools/goMaker/templates/generators",
+	}
+
+	for _, genPath := range paths {
+		if file.FolderExists(genPath) {
+			return genPath
+		}
+	}
+
+	logger.Fatal("could not find generators directory in any of: %s", strings.Join(paths, ", "))
+	return "" // unreachable but needed for compilation
 }
 
 func getTemplateContents(fnIn string) string {

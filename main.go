@@ -9,7 +9,6 @@ import (
 
 	"github.com/TrueBlocks/goMaker/v6/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
-	"github.com/joho/godotenv"
 )
 
 //go:embed help.txt help_verbose.txt
@@ -38,8 +37,6 @@ func showHelp() {
 }
 
 func main() {
-	_ = godotenv.Load(".env", ".env.paths")
-
 	showHelpFlag := false
 	for _, arg := range os.Args {
 		if arg == "--help" || arg == "-h" || arg == "-help" || arg == "help" {

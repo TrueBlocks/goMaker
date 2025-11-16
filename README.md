@@ -65,7 +65,8 @@ The `goMaker` program also generates a huge number of source code files and docu
 `goMaker` supports several environment variables for customization:
 
 - **TB_TEMPLATES_PATH**: Override the default templates folder location
-  - Default: Searches for `dev-tools/goMaker/templates` or `code_gen/templates`
+  - Must contain `classDefinitions/` subfolder or goMaker will panic
+  - Default search: `./code_gen/templates` → `../dev-tools/goMaker/templates` → `./dev-tools/goMaker/templates`
   - Example: `TB_TEMPLATES_PATH=/custom/path/to/templates`
 
 - **TB_REMOTE_TESTING**: Skip file change validation (used in CI/CD)
@@ -77,7 +78,8 @@ The `goMaker` program also generates a huge number of source code files and docu
   - Example: `TB_MAKER_SINGLE=readme` generates only README files
 
 - **TB_GENERATORS_PATH**: Override generators folder location
-  - Default: Uses `generators` subfolder within templates path
+  - Must end with 'generators' and exist or goMaker will panic
+  - Default search: `./code_gen/templates/generators` → `../dev-tools/goMaker/templates/generators` → `./dev-tools/goMaker/templates/generators`
   - Example: `TB_GENERATORS_PATH=/custom/generators`
   - Allows using different template generators while keeping config files in standard location
 

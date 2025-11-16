@@ -10,7 +10,7 @@ import (
 var verbose bool = false
 
 func init() {
-	_ = godotenv.Load(".env", ".env.paths")
+	_ = godotenv.Load()
 	verbose = os.Getenv("TB_VERBOSE") == "true"
 }
 
