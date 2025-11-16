@@ -411,7 +411,7 @@ func (s *Structure) CalcMembers() []string {
 
 func (s *Structure) HasForms() bool {
 	for _, f := range s.Facets {
-		if f.Renderer == "panel" {
+		if f.ViewType == "table" && f.Panel == "custom" {
 			return true
 		}
 	}
@@ -420,7 +420,7 @@ func (s *Structure) HasForms() bool {
 
 func (s *Structure) HasCustomPanel() bool {
 	for _, f := range s.Facets {
-		if f.Renderer == "panel" {
+		if f.ViewType == "table" && f.Panel == "custom" {
 			return true
 		}
 	}
@@ -429,26 +429,15 @@ func (s *Structure) HasCustomPanel() bool {
 
 func (s *Structure) HasCustomFacet() bool {
 	for _, f := range s.Facets {
-		if f.Renderer == "facet" {
+		if f.ViewType == "custom" {
 			return true
 		}
 	}
 	return false
 }
 
-func (s *Structure) RendererTypes() string {
-	rendererSet := make(map[string]struct{})
-	for _, f := range s.Facets {
-		if f.Renderer != "" {
-			rendererSet[f.Renderer] = struct{}{}
-		}
-	}
-	ret := make([]string, 0, len(rendererSet))
-	for renderer := range rendererSet {
-		ret = append(ret, renderer)
-	}
-	sort.Strings(ret)
-	return strings.Join(ret, ",")
+func (s *Structure) HasCustomRenderers() bool {
+	return s.HasCustomFacet() || s.HasCustomPanel()
 }
 
 func (m *Member) IsAddress(s *Structure) bool {
@@ -545,7 +534,7 @@ func (s *Structure) analyzeRemovePattern() string {
 	return "none"
 }
 
-func (s *Structure) HadDynamicFacets() bool {
+func (s *Structure) HasDynamicFacets() bool {
 	for _, f := range s.Facets {
 		if f.IsDynamic {
 			return true

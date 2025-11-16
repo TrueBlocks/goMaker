@@ -53,6 +53,8 @@ func main() {
 	}
 
 	// Normal execution
+	pwd, _ := os.Getwd()
+	logger.InfoBY("Current folder:", pwd)
 
 	// First check if templates folder exists and isn't empty
 	if err := types.ValidateTemplatesFolder(); err != nil {

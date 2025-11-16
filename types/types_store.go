@@ -105,3 +105,15 @@ func (s *Store) UseMapKey() bool {
 	}
 	return false
 }
+
+func (s *Store) NeedsCalcs() bool {
+	if s.sPtr == nil {
+		return false
+	}
+	for _, f := range s.sPtr.Facets {
+		if f.StoreName == s.Name && f.NeedsCalcs {
+			return true
+		}
+	}
+	return false
+}

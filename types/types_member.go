@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 )
@@ -599,64 +600,64 @@ func (m *Member) ReadOnly() bool {
 }
 
 // GetFormatter returns the appropriate formatter string for this field
+// Updated to preserve CSV semantic types and fix boolean field handling
 func (m *Member) GetFormatter() string {
-	name := m.Name
 	fieldType := m.Type
-	description := m.Description
 
-	// Handle "no formatter" cases
-	if strings.HasPrefix(name, "n") ||
-		strings.HasSuffix(name, "Bytes") ||
-		strings.Contains(name, "Per") {
-		return ""
-	}
-
-	// Handle specific types
 	switch fieldType {
-	case "address":
-		return "address"
-	case "ether":
-		return "ether"
-	case "wei", "int256", "uint256":
-		if strings.HasSuffix(name, "Eth") {
-			return "ether"
-		}
+	case "uint256":
 		return "wei"
-	case "blkrange":
-		return "blkrange"
-	case "timestamp":
-		return "datetime"
-	case "hash", "ipfshash":
-		return "hash"
-	case "bool":
-		// Boolean formatter only if name doesn't start with "is" or "has"
-		if !strings.HasPrefix(name, "is") && !strings.HasPrefix(name, "has") {
-			return "boolean"
+	case "string", "address", "hash", "gas", "blknum", "txnum", "lognum", "blkrange", "timestamp", "datetime",
+		"bytes", "uint64", "int64", "value", "float64", "path", "url", "ipfshash", "ipfsHash",
+		"topic", "fileSize", "ether", "wei", "int256", "boolean":
+		return fieldType
+	default:
+		if len(fieldType) > 0 && (strings.ToUpper(string(fieldType[0]))[0] != fieldType[0]) {
+			logger.InfoBG("unknown field type:", fieldType)
 		}
-	}
-
-	// Handle name patterns
-	if strings.HasSuffix(name, "Eth") {
-		return "ether"
-	}
-	if strings.HasSuffix(name, "num") || strings.HasSuffix(fieldType, "num") || name == "count" {
-		return "number"
-	}
-	if strings.HasPrefix(fieldType, "uint") || strings.HasPrefix(fieldType, "float") {
-		return "number"
-	}
-	if strings.HasSuffix(strings.ToLower(name), "url") {
-		return "url"
-	}
-	if name == "fileName" || strings.HasSuffix(name, "Path") || name == "path" {
-		return "path"
-	}
-	if strings.HasSuffix(name, "Date") {
-		return "datetime"
-	}
-	if name == "size" && strings.Contains(description, "on disc") {
-		return "calc.fileSize"
 	}
 
 	return ""
+}
+
+// GetColumnLabel returns the appropriate column label for this field
+func (m *Member) GetColumnLabel() string {
+	return unCamelizeWithPerReplacement(m.Name)
+}
+
+// GetDetailLabel returns the appropriate detail label for this field
+func (m *Member) GetDetailLabel() string {
+	name := m.Name
+	// For detail labels, handle "is" prefix specially
+	if strings.HasPrefix(name, "is") && len(name) > 2 && unicode.IsUpper(rune(name[2])) {
+		return "Is " + unCamelizeWithPerReplacement(name[2:])
+	}
+	return unCamelizeWithPerReplacement(name)
+}
+
+// unCamelizeWithPerReplacement converts camelCase to Title Case with Per → / replacement
+func unCamelizeWithPerReplacement(s string) string {
+	// Remove "calcs." prefix if present
+	s = strings.TrimPrefix(s, "calcs.")
+
+	// Remove "Eth" suffix if present
+	s = strings.TrimSuffix(s, "Eth")
+
+	// Replace "Per" with "/" for ratio fields
+	s = strings.ReplaceAll(s, "Per", "/")
+
+	var result strings.Builder
+	runes := []rune(s)
+	if len(runes) == 0 {
+		return ""
+	}
+
+	result.WriteRune(unicode.ToUpper(runes[0]))
+	for i := 1; i < len(runes); i++ {
+		if unicode.IsUpper(runes[i]) {
+			result.WriteRune(' ')
+		}
+		result.WriteRune(runes[i])
+	}
+	return result.String()
 }

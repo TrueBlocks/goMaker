@@ -21,7 +21,7 @@ func (s *Structure) HasUpdate() bool {
 func (s *Structure) HasCrud() bool {
 	crudActions := []string{"create", "update", "delete", "remove", "undelete", "autoname", "remove-confirm"}
 	for _, facet := range s.Facets {
-		if facet.Renderer == "facet" {
+		if facet.ViewType == "custom" {
 			continue
 		}
 		for _, action := range facet.Actions {

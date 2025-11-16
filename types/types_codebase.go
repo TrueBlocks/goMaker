@@ -115,9 +115,10 @@ var knownTypes = map[string]bool{
 	"command":     true,
 	"datetime":    true,
 	"ether":       true,
+	"fileSize":    true,
 	"flag":        true,
-	"float64":     true,
 	"float":       true,
+	"float64":     true,
 	"fourbyte":    true,
 	"gas":         true,
 	"group":       true,
@@ -125,8 +126,10 @@ var knownTypes = map[string]bool{
 	"int256":      true,
 	"int64":       true,
 	"ipfshash":    true,
+	"ipfsHash":    true,
 	"lognum":      true,
 	"note":        true,
+	"path":        true,
 	"positional":  true,
 	"string":      true,
 	"switch":      true,
@@ -137,14 +140,15 @@ var knownTypes = map[string]bool{
 	"uint256":     true,
 	"uint32":      true,
 	"uint64":      true,
+	"url":         true,
 	"value":       true,
 	"wei":         true,
 	"AddrRecord":  true,
 	"AppRecord":   true,
+	"DestType":    true,
+	"StatePart":   true,
 	"StorageSlot": true,
 	"TokenType":   true,
-	"StatePart":   true,
-	"DestType":    true,
 }
 
 // Validate - called from FinishLoad to validate the codebase
@@ -162,8 +166,7 @@ func (cb *CodeBase) Validate() error {
 			}
 
 			if cb.TypeToGroup(m.Type) == "unknown type: "+m.Type {
-				msg := fmt.Sprintf("unknown type %s in model: %s", m.Type, st.Class)
-				logger.Fatal(msg)
+				return fmt.Errorf("unknown type %s in model: %s", m.Type, st.Class)
 			}
 		}
 		sorted := make([]int, 0, len(order))
@@ -173,8 +176,7 @@ func (cb *CodeBase) Validate() error {
 		sort.Ints(sorted)
 		for i, v := range sorted {
 			if i+1 != v {
-				msg := fmt.Sprintf("doc_order is not sequential in model: %s", st.Class)
-				logger.Fatal(msg, sorted)
+				return fmt.Errorf("doc_order is not sequential in model: %s", st.Class)
 			}
 		}
 
@@ -204,8 +206,7 @@ func (cb *CodeBase) Validate() error {
 				continue
 			}
 
-			msg := fmt.Sprintf("unknown types %s.%s in command: %s", stripped, ot, op.LongName)
-			logger.Fatal(msg)
+			return fmt.Errorf("unknown types %s.%s in command: %s", stripped, ot, op.LongName)
 		}
 	}
 
@@ -216,26 +217,33 @@ func (cb *CodeBase) Validate() error {
 			csvFile := filepath.Join(pwd, "code_gen/templates/classDefinitions/fields", strings.ToLower(f.StoreName)+".csv")
 
 			if !structureNames[f.StoreName] {
-				var msg string
+				// The main issue: StoreName is not found in the structureNames map
+				baseMsg := fmt.Sprintf("facet references StoreName '%s' in structure %s, but no structure with Class='%s' found in codebase", f.StoreName, st.Class, f.StoreName)
+
+				var missingFiles []string
 				if !file.FileExists(tomlFile) {
-					msg = fmt.Sprintf("facet store %s in structure %s not found. Missing .toml file? %s.", f.StoreName, st.Class, tomlFile)
+					missingFiles = append(missingFiles, fmt.Sprintf("TOML file: %s", tomlFile))
 					logger.InfoBR("TOML file missing:", tomlFile)
 				} else {
 					logger.InfoBR("TOML file found:", tomlFile)
 				}
 				if !file.FileExists(csvFile) {
-					msg = fmt.Sprintf("facet store %s in structure %s not found. Missing .csv file? %s.", f.StoreName, st.Class, csvFile)
+					missingFiles = append(missingFiles, fmt.Sprintf("CSV file: %s", csvFile))
 					logger.InfoBR("CSV file missing:", csvFile)
 				} else {
 					logger.InfoBR("CSV file found:", csvFile)
 				}
-				logger.Fatal(msg)
+
+				if len(missingFiles) > 0 {
+					return fmt.Errorf("%s. Missing files: %s", baseMsg, strings.Join(missingFiles, ", "))
+				} else {
+					return fmt.Errorf("%s. Template files exist (%s, %s) but the Class name inside %s may not match '%s', or the structure failed to load", baseMsg, tomlFile, csvFile, tomlFile, f.StoreName)
+				}
 			}
 
 			if len(st.Members) == 0 {
 				csvFile := filepath.Join(pwd, "code_gen/templates/classDefinitions/fields", strings.ToLower(st.Class)+".csv")
-				msg := fmt.Sprintf("No members found in structure: %s %s", st.Class, csvFile)
-				logger.Fatal(msg)
+				return fmt.Errorf("no members found in structure: %s %s", st.Class, csvFile)
 			}
 		}
 	}

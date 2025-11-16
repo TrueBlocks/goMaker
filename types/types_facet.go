@@ -15,7 +15,7 @@ type Facet struct {
 	Actions     []string        `toml:"actions" json:"actions"`
 	Confirms    map[string]bool `json:"-" toml:"-"` // actions requiring confirmation (parsed from -confirm suffix)
 	ViewType    string          `toml:"viewType" json:"viewType"`
-	Renderer    string          `toml:"renderer" json:"renderer"`
+	Panel       string          `toml:"panel" json:"panel"`
 	Navigate    string          `toml:"navigate" json:"navigate"`
 	Attributes  string          `json:"attributes"`
 	IsDynamic   bool            `json:"isDynamic" toml:"isDynamic"`
@@ -30,9 +30,14 @@ type Facet struct {
 }
 
 var allowedViewTypes = map[string]bool{
-	"table":     true,
-	"form":      true,
-	"dashboard": true,
+	"table":  true,
+	"form":   true,
+	"custom": true,
+}
+
+var allowedPanelTypes = map[string]bool{
+	"":       true, // Empty/default panel
+	"custom": true,
 }
 
 func (f *Facet) SingleStore() string {
@@ -69,6 +74,18 @@ func (f *Facet) ValidateActions() error {
 	return nil
 }
 
+func (f *Facet) ValidatePanel() error {
+	if f == nil {
+		return nil
+	}
+
+	if !allowedPanelTypes[f.Panel] {
+		return fmt.Errorf("invalid panel value: %s", f.Panel)
+	}
+
+	return nil
+}
+
 // NormalizeActions processes any "-confirm" suffix, storing the base action name and a parallel confirmation flag.
 func (f *Facet) NormalizeActions() {
 	if f == nil || len(f.Actions) == 0 {
@@ -102,6 +119,9 @@ func (f *Facet) ValidateAll() error {
 	if err := f.ValidateViewType(); err != nil {
 		return err
 	}
+	if err := f.ValidatePanel(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -118,6 +138,22 @@ func (f *Facet) IsTable() bool {
 
 func (f *Facet) IsForm() bool {
 	return f.ViewType == "form" || f.ViewType == "dashboard"
+}
+
+func (f *Facet) IsCustom() bool {
+	return f.ViewType == "custom"
+}
+
+func (f *Facet) IsCustomPanel() bool {
+	return f.ViewType == "table" && f.Panel == "custom"
+}
+
+func (f *Facet) IsCustomFacet() bool {
+	return f.ViewType == "custom"
+}
+
+func (f *Facet) NeedsCustomRenderer() bool {
+	return f.IsCustomPanel() || f.IsCustomFacet()
 }
 
 func (f *Facet) HasDivider() bool {
