@@ -254,10 +254,10 @@ func getGeneratorsPath() string {
 			envPath += "/"
 		}
 		if !file.FolderExists(envPath) {
-			logger.Fatal("TB_GENERATORS_PATH env variable points to non-existent folder: %s", envPath)
+			logger.Fatal(fmt.Sprintf("TB_GENERATORS_PATH env variable points to non-existent folder: %s", envPath))
 		}
 		if !strings.HasSuffix(envPath, "generators/") {
-			logger.Fatal("TB_GENERATORS_PATH must end with 'generators', got: %s", envPath)
+			logger.Fatal(fmt.Sprintf("TB_GENERATORS_PATH must end with 'generators', got: %s", envPath))
 		}
 		return envPath
 	}
@@ -274,7 +274,7 @@ func getGeneratorsPath() string {
 		}
 	}
 
-	logger.Fatal("could not find generators directory in any of: %s", strings.Join(paths, ", "))
+	logger.Fatal(fmt.Sprintf("could not find generators directory in any of: %s", strings.Join(paths, ", ")))
 	return "" // unreachable but needed for compilation
 }
 

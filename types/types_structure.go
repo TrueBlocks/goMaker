@@ -450,12 +450,6 @@ func (m *Member) IsAddress(s *Structure) bool {
 	if s.Class == "Name" {
 		return false
 	}
-	if s.Class == "Transfer" && (m.Name == "recipient" || m.Name == "sender") {
-		return false
-	}
-	if s.Class == "Token" && (m.Name == "address") {
-		return false
-	}
 	return true
 }
 
