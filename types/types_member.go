@@ -613,7 +613,7 @@ func (m *Member) GetFormatter() string {
 		return fieldType
 	default:
 		if len(fieldType) > 0 && (strings.ToUpper(string(fieldType[0]))[0] != fieldType[0]) {
-			logger.InfoBG("unknown field type:", fieldType)
+			logger.Fatal("unknown field type:", fieldType)
 		}
 	}
 
