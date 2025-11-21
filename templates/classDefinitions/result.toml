@@ -7,4 +7,4 @@
     produced_by = "state"
     contains = "function"
     cache_type = "cacheable"
-    cache_by = "address,block,fourbyte"
+    cache_by = "address,fourbyte,block"

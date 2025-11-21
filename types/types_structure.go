@@ -202,10 +202,14 @@ func (s *Structure) CacheIdStr() string {
 		return "s.Address.Hex()[2:]"
 	case "address,block":
 		return "fmt.Sprintf(\"%s-%09d\", s.Address.Hex()[2:], s.BlockNumber)"
-	case "address,block,fourbyte":
+	case "address,fourbyte,block":
 		return "fmt.Sprintf(\"%s-%s-%09d\", s.Address.Hex()[2:], s.Encoding[2:], s.BlockNumber)"
 	case "address,tx":
 		return "fmt.Sprintf(\"%s-%09d-%05d\", s.Address.Hex()[2:], s.BlockNumber, s.TransactionIndex)"
+	case "address,address,block":
+		return "fmt.Sprintf(\"%s-%s-%09d\", s.TokenAddress.Hex()[2:], s.Address.Hex()[2:], s.BlockNumber)"
+	case "address,address,address,block":
+		return "fmt.Sprintf(\"%s-%s-%s-%09d\", s.TokenAddress.Hex()[2:], s.Owner.Hex()[2:], s.Spender.Hex()[2:], s.BlockNumber)"
 	case "statement":
 		return "fmt.Sprintf(\"%s-%s-%09d-%05d\", s.Holder.Hex()[2:], s.Asset.Hex()[2:], s.BlockNumber, s.TransactionIndex)"
 	case "block":
