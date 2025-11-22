@@ -278,6 +278,14 @@ func (m *Member) MarshalCode() string {
 	}
 
 `
+	} else if m.GoName() == "TokenType" && m.Container() == "Token" {
+		tmplName += "a4a"
+		tmpl = `// {{.GoName}}
+	if err = base.WriteValue(writer, uint64(s.{{.GoName}})); err != nil {
+		return err
+	}
+
+`
 	} else if m.IsObject() {
 		tmplName += "5"
 		tmpl = `// {{.GoName}}
@@ -364,6 +372,16 @@ func (m *Member) UnmarshalCode() string {
 		return err
 	}
 	s.{{.GoName}} = StatePart(parts)
+
+`
+	} else if m.GoName() == "TokenType" && m.Container() == "Token" {
+		tmplName += "a5a"
+		tmpl = `// {{.GoName}}
+	var parts uint64
+	if err = base.ReadValue(reader, &parts, fileVersion); err != nil {
+		return err
+	}
+	s.{{.GoName}} = TokenType(parts)
 
 `
 	} else if m.IsObject() {
