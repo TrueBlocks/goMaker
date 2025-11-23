@@ -658,6 +658,9 @@ func unCamelizeWithPerReplacement(s string) string {
 	// Remove "calcs." prefix if present
 	s = strings.TrimPrefix(s, "calcs.")
 
+	// Remove "receipt." prefix if present
+	s = strings.TrimPrefix(s, "receipt.")
+
 	// Remove "Eth" suffix if present
 	s = strings.TrimSuffix(s, "Eth")
 

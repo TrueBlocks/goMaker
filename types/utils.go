@@ -21,6 +21,10 @@ var ErrNoTemplateFolder = errors.New("could not find the templates directory")
 type TemplateMetadata struct {
 	Output string `yaml:"output"`
 	Scope  string `yaml:"scope"`
+	Group  string `yaml:"group"`
+	Route  string `yaml:"route"`
+	Reason string `yaml:"reason"`
+	Type   string `yaml:"type"`
 }
 
 func shouldProcess(source, subPath, tag string) (bool, error) {
@@ -81,7 +85,11 @@ func getGeneratorContentsAndDest(fullPath, subPath, group, reason, routeTag, typ
 	// Extract metadata first, before stripping it
 	var dest string
 	if metadata := parseMetadataBlock(tmpl, reason); metadata != nil {
-		dest = processMetadataPath(metadata.Output, routeTag, typeTag, groupTag, reason)
+		metadata.Route = routeTag
+		metadata.Type = typeTag
+		metadata.Group = groupTag
+		metadata.Reason = reason
+		dest = metadata.processPath()
 	} else {
 		logger.ShouldNotHappen("Old style templates should be gone.")
 	}
@@ -158,8 +166,13 @@ func parseMetadataBlock(content, reason string) *TemplateMetadata {
 	return metadata
 }
 
-// processMetadataPath processes Go template variables in a metadata output path
-func processMetadataPath(outputPath, routeTag, typeTag, groupTag, reason string) string {
+// processPath processes Go template variables in a metadata output path
+func (m *TemplateMetadata) processPath() string {
+	outputPath := m.Output
+	routeTag := m.Route
+	typeTag := m.Type
+	groupTag := m.Group
+	reason := m.Reason
 	dest := outputPath
 
 	dest = strings.ReplaceAll(dest, "[[Route]]", Proper(routeTag))
@@ -175,10 +188,12 @@ func processMetadataPath(outputPath, routeTag, typeTag, groupTag, reason string)
 	return dest
 }
 
-var rootFolder = "dev-tools/goMaker/"
-var cachedTemplatesPath string
-var templatesPathError error
-var templatesPathOnce sync.Once
+var (
+	rootFolder          = "dev-tools/goMaker/"
+	cachedTemplatesPath string
+	templatesPathError  error
+	templatesPathOnce   sync.Once
+)
 
 func getRootFolder() string {
 	return filepath.Join(rootFolder)
