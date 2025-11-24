@@ -18,6 +18,7 @@ type Member struct {
 	DocOrder    int        `json:"docOrder,omitempty" csv:"docOrder"`
 	Upgrades    string     `json:"upgrades,omitempty" csv:"upgrades"`
 	Description string     `json:"description,omitempty" csv:"description"`
+	Label       string     `json:"label,omitempty" csv:"label"`
 	Num         int        `json:"num"`
 	IsArray     bool       `json:"isArray,omitempty"`
 	IsPointer   bool       `json:"isPointer,omitempty"`
@@ -521,6 +522,7 @@ func readMember(m *Member, data *any) (bool, error) {
 	m.Attributes = strings.Trim(m.Attributes, " ")
 	m.Section = strings.Trim(m.Section, " ")
 	m.Description = strings.Trim(m.Description, " ")
+	m.Label = strings.Trim(m.Label, " ")
 
 	m.Description = strings.ReplaceAll(m.Description, "&#44;", ",")
 
@@ -640,11 +642,17 @@ func (m *Member) GetFormatter() string {
 
 // GetColumnLabel returns the appropriate column label for this field
 func (m *Member) GetColumnLabel() string {
+	if m.Label != "" {
+		return m.Label
+	}
 	return unCamelizeWithPerReplacement(m.Name)
 }
 
 // GetDetailLabel returns the appropriate detail label for this field
 func (m *Member) GetDetailLabel() string {
+	if m.Label != "" {
+		return m.Label
+	}
 	name := m.Name
 	// For detail labels, handle "is" prefix specially
 	if strings.HasPrefix(name, "is") && len(name) > 2 && unicode.IsUpper(rune(name[2])) {
