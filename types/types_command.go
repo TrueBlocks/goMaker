@@ -690,6 +690,10 @@ func (c *Command) ReturnTypes() string {
 	return strings.Join(ret, "|\n")
 }
 
+func (c *Command) nReturnTypes() int {
+	return len(c.ReturnTypesArray())
+}
+
 func (c *Command) HasSdkEndpoints() bool {
 	for _, op := range c.Options {
 		if len(op.ReturnType) > 0 {
@@ -769,7 +773,8 @@ func (op *Option) GetBools() string {
 }
 
 func (op *Option) GetNotFuzzed() string {
-	in := []string{"watchlist",
+	in := []string{
+		"watchlist",
 		"commands",
 		"load",
 		"truncate",
