@@ -424,7 +424,7 @@ func (s *Structure) HasForms() bool {
 
 func (s *Structure) HasCustomPanel() bool {
 	for _, f := range s.Facets {
-		if f.ViewType == "table" && f.Panel == "custom" {
+		if f.Panel == "custom" {
 			return true
 		}
 	}
