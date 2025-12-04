@@ -619,6 +619,18 @@ func (m *Member) ReadOnly() bool {
 	return m.UiType() == "address"
 }
 
+// Fmt returns the format hint for this field. If fmt=value is present in attributes,
+// it returns that value; otherwise defaults to the field's Type.
+func (m *Member) Fmt() string {
+	parts := strings.Split(m.Attributes, "|")
+	for _, part := range parts {
+		if strings.HasPrefix(part, "fmt=") {
+			return strings.TrimPrefix(part, "fmt=")
+		}
+	}
+	return m.Type
+}
+
 // GetFormatter returns the appropriate formatter string for this field
 // Updated to preserve CSV semantic types and fix boolean field handling
 func (m *Member) GetFormatter() string {
