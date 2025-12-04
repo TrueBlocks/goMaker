@@ -634,6 +634,10 @@ func (m *Member) Fmt() string {
 // GetFormatter returns the appropriate formatter string for this field
 // Updated to preserve CSV semantic types and fix boolean field handling
 func (m *Member) GetFormatter() string {
+	if m.Fmt() != "" && m.Fmt() != m.Type {
+		return m.Fmt()
+	}
+
 	fieldType := m.Type
 
 	switch fieldType {
