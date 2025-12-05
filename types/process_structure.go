@@ -28,7 +28,6 @@ func (item *Structure) ProcessFile(sourceIn, group, reason string) error {
 		route = strings.ToLower(item.Class)
 	}
 	tmpl, dest := getGeneratorContentsAndDest(fullPath, subPath, group, reason, route, item.Name(), group)
-
 	if strings.Contains(dest, "/-facet-") {
 		for _, facet := range item.Facets {
 			name := Lower("/" + facet.Name)
@@ -41,6 +40,9 @@ func (item *Structure) ProcessFile(sourceIn, group, reason string) error {
 			tmplName := fullPath + group + reason + facet.Name
 			result := facet.executeTemplate(tmplName, tmpl)
 			result = strings.ReplaceAll(result, "--Facet--", facet.Name)
+			if strings.Contains(dest, "Panel") && strings.Contains(tmpl, "onFinal") && !strings.Contains(name, "openapprovals") {
+				result = strings.Replace(result, "onFinal", "_onFinal", -1)
+			}
 			_, err := WriteCode(dd, result)
 			if err != nil {
 				return err
