@@ -141,6 +141,40 @@ func (cb *CodeBase) LoadStructures(basePath string, callBack func(*Structure, *a
 				f.Facets[i].Name = strings.ReplaceAll(f.Facets[i].Name, " ", "")
 			}
 			f.Settings.Facets = f.Facets // Copy facets into the Structure
+
+			// If facetOrder is specified in TOML, reorder facets to match
+			if len(f.Settings.FacetOrder) > 0 {
+				facetMap := make(map[string]Facet)
+				for _, facet := range f.Settings.Facets {
+					facetMap[strings.ToLower(facet.Name)] = facet
+				}
+
+				orderedFacets := make([]Facet, 0, len(f.Settings.FacetOrder))
+				for _, name := range f.Settings.FacetOrder {
+					if facet, exists := facetMap[strings.ToLower(name)]; exists {
+						orderedFacets = append(orderedFacets, facet)
+						delete(facetMap, strings.ToLower(name))
+					} else {
+						logger.Warn("facetOrder references unknown facet:", name, "in structure:", f.Settings.Class)
+					}
+				}
+
+				// Append any remaining facets not in facetOrder (for safety)
+				for _, facet := range f.Settings.Facets {
+					if _, stillExists := facetMap[strings.ToLower(facet.Name)]; stillExists {
+						logger.Warn("facet not in facetOrder, appending:", facet.Name, "in structure:", f.Settings.Class)
+						orderedFacets = append(orderedFacets, facet)
+					}
+				}
+
+				f.Settings.Facets = orderedFacets
+			}
+
+			// Default menuPosition to "top" if not specified
+			if f.Settings.MenuPosition == "" {
+				f.Settings.MenuPosition = "top"
+			}
+
 			structMap[mapKey] = f.Settings
 		}
 		return nil
@@ -505,7 +539,6 @@ func ReadTomlFiles(includeDisabled bool) ([]Structure, error) {
 		structures = append(structures, f.Settings)
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
