@@ -135,14 +135,15 @@ func (cb *CodeBase) LoadStructures(basePath string, callBack func(*Structure, *a
 				f.Facets[i].Store = "NOT NEEDED AFTER LOAD - THIS MESSAGE PROVES IT"
 			}
 			for i := 0; i < len(f.Facets); i++ {
-				if len(f.Facets[i].DisplayName) == 0 {
+				// Use Label if provided, otherwise use DisplayName if set, otherwise fall back to Name
+				if len(f.Facets[i].Label) > 0 {
+					f.Facets[i].DisplayName = f.Facets[i].Label
+				} else if len(f.Facets[i].DisplayName) == 0 {
 					f.Facets[i].DisplayName = f.Facets[i].Name
 				}
 				f.Facets[i].Name = strings.ReplaceAll(f.Facets[i].Name, " ", "")
 			}
-			f.Settings.Facets = f.Facets // Copy facets into the Structure
-
-			// If facetOrder is specified in TOML, reorder facets to match
+			f.Settings.Facets = f.Facets // Copy facets into the Structure			// If facetOrder is specified in TOML, reorder facets to match
 			if len(f.Settings.FacetOrder) > 0 {
 				facetMap := make(map[string]Facet)
 				for _, facet := range f.Settings.Facets {
@@ -524,7 +525,10 @@ func ReadTomlFiles(includeDisabled bool) ([]Structure, error) {
 			f.Facets[i].Store = "NOT NEEDED AFTER LOAD - THIS MESSAGE PROVES IT"
 		}
 		for i := 0; i < len(f.Facets); i++ {
-			if len(f.Facets[i].DisplayName) == 0 {
+			// Use Label if provided, otherwise use DisplayName if set, otherwise fall back to Name
+			if len(f.Facets[i].Label) > 0 {
+				f.Facets[i].DisplayName = f.Facets[i].Label
+			} else if len(f.Facets[i].DisplayName) == 0 {
 				f.Facets[i].DisplayName = f.Facets[i].Name
 			}
 			f.Facets[i].Name = strings.ReplaceAll(f.Facets[i].Name, " ", "")

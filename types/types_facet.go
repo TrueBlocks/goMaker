@@ -8,6 +8,7 @@ import (
 type Facet struct {
 	DisplayName string          `toml:"display_name" json:"display_name"`
 	Name        string          `json:"name"`
+	Label       string          `toml:"label" json:"label"`
 	MapKey      string          `json:"mapKey" toml:"mapKey"`
 	Store       string          `json:"store"` // This will be parsed into StoreName and StoreSource
 	StoreName   string          `json:"storeName"`
