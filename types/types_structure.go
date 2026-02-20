@@ -14,32 +14,36 @@ import (
 )
 
 type Structure struct {
-	Class       string    `json:"class,omitempty" toml:"class" csv:"class"`
-	DisplayName string    `json:"display_name,omitempty" toml:"display_name"`
-	DocGroup    string    `json:"doc_group,omitempty" toml:"doc_group" csv:"doc_group"`
-	DocRoute    string    `json:"doc_route,omitempty" toml:"doc_route"`
-	DocDescr    string    `json:"doc_descr,omitempty" toml:"doc_descr" csv:"doc_descr"`
-	DocNotes    string    `json:"doc_notes,omitempty" toml:"doc_notes" csv:"doc_notes"`
-	UiRoute     string    `json:"ui_route,omitempty" toml:"ui_route"`
-	UiIcon      string    `json:"ui_icon,omitempty" toml:"ui_icon"`
-	ProducedBy  string    `json:"produced_by,omitempty" toml:"produced_by"`
-	ContainedBy string    `json:"contained_by,omitempty" toml:"contained_by"`
-	Parent      string    `json:"parent,omitempty" toml:"parent"`
-	Children    string    `json:"children,omitempty" toml:"children"`
-	CacheAs     string    `json:"cache_as,omitempty" toml:"cache_as"`
-	CacheBy     string    `json:"cache_by,omitempty" toml:"cache_by"`
-	CacheType   string    `json:"cache_type,omitempty" toml:"cache_type"`
-	StoreType   string    `json:"store_type,omitempty" toml:"store_type"`
-	DisableGo   bool      `json:"disable_go,omitempty" toml:"disable_go"`
-	DisableDocs bool      `json:"disable_docs,omitempty" toml:"disable_docs"`
-	Attributes  string    `json:"attributes,omitempty" toml:"attributes"`
-	Sorts       string    `json:"sorts,omitempty" toml:"sorts"`
-	Members     []Member  `json:"members,omitempty" toml:"members"`
-	Facets      []Facet   `json:"facets,omitempty" toml:"facets"`
-	Route       string    `json:"-" toml:"-"`
-	Producers   []string  `json:"-" toml:"-"`
-	ChildTabs   []string  `json:"-" toml:"-"`
-	cbPtr       *CodeBase `json:"-" toml:"-"`
+	Class        string    `json:"class,omitempty" toml:"class" csv:"class"`
+	DisplayName  string    `json:"display_name,omitempty" toml:"display_name"`
+	DocGroup     string    `json:"doc_group,omitempty" toml:"doc_group" csv:"doc_group"`
+	DocRoute     string    `json:"doc_route,omitempty" toml:"doc_route"`
+	DocDescr     string    `json:"doc_descr,omitempty" toml:"doc_descr" csv:"doc_descr"`
+	DocNotes     string    `json:"doc_notes,omitempty" toml:"doc_notes" csv:"doc_notes"`
+	UiRoute      string    `json:"ui_route,omitempty" toml:"ui_route"`
+	UiIcon       string    `json:"ui_icon,omitempty" toml:"ui_icon"`
+	ProducedBy   string    `json:"produced_by,omitempty" toml:"produced_by"`
+	ContainedBy  string    `json:"contained_by,omitempty" toml:"contained_by"`
+	Parent       string    `json:"parent,omitempty" toml:"parent"`
+	Children     string    `json:"children,omitempty" toml:"children"`
+	CacheAs      string    `json:"cache_as,omitempty" toml:"cache_as"`
+	CacheBy      string    `json:"cache_by,omitempty" toml:"cache_by"`
+	CacheType    string    `json:"cache_type,omitempty" toml:"cache_type"`
+	StoreType    string    `json:"store_type,omitempty" toml:"store_type"`
+	DisableGo    bool      `json:"disable_go,omitempty" toml:"disable_go"`
+	DisableDocs  bool      `json:"disable_docs,omitempty" toml:"disable_docs"`
+	Attributes   string    `json:"attributes,omitempty" toml:"attributes"`
+	Sorts        string    `json:"sorts,omitempty" toml:"sorts"`
+	FacetOrder   []string  `json:"facetOrder,omitempty" toml:"facetOrder"`
+	MenuOrder    int       `json:"menuOrder,omitempty" toml:"menuOrder"`
+	MenuLabel    string    `json:"menuLabel,omitempty" toml:"menuLabel"`
+	MenuPosition string    `json:"menuPosition,omitempty" toml:"menuPosition"`
+	Members      []Member  `json:"members,omitempty" toml:"members"`
+	Facets       []Facet   `json:"facets,omitempty" toml:"facets"`
+	Route        string    `json:"-" toml:"-"`
+	Producers    []string  `json:"-" toml:"-"`
+	ChildTabs    []string  `json:"-" toml:"-"`
+	cbPtr        *CodeBase `json:"-" toml:"-"`
 }
 
 func (s *Structure) executeTemplate(name, tmplCode string) string {
@@ -424,7 +428,7 @@ func (s *Structure) HasForms() bool {
 
 func (s *Structure) HasCustomPanel() bool {
 	for _, f := range s.Facets {
-		if f.ViewType == "table" && f.Panel == "custom" {
+		if f.Panel == "custom" {
 			return true
 		}
 	}

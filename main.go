@@ -11,8 +11,13 @@ import (
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 )
 
-//go:embed help.txt help_verbose.txt
+//go:embed help.txt help_verbose.txt VERSION
 var helpFS embed.FS
+
+// Build-time variables
+var (
+	compileTime = "unknown"
+)
 
 func showHelp() {
 	helpFileName := "help.txt"
@@ -36,15 +41,55 @@ func showHelp() {
 	fmt.Println(string(helpContent))
 }
 
+func showVersion() {
+	versionFile, err := helpFS.Open("VERSION")
+	if err != nil {
+		fmt.Println("Error: Could not load version information.")
+		return
+	}
+	defer versionFile.Close()
+
+	versionContent, err := io.ReadAll(versionFile)
+	if err != nil {
+		fmt.Println("Error: Could not read version information.")
+		return
+	}
+
+	version := strings.TrimSpace(string(versionContent))
+	fmt.Println("Version:  v" + version)
+	fmt.Println("Compiled:", compileTime)
+}
+
 func main() {
 	showHelpFlag := false
-	for _, arg := range os.Args {
-		if arg == "--help" || arg == "-h" || arg == "-help" || arg == "help" {
+	showVersionFlag := false
+
+	// Validate all arguments first
+	for i, arg := range os.Args {
+		if i == 0 { // Skip program name
+			continue
+		}
+
+		switch arg {
+		case "--help", "-h", "-help", "help":
 			showHelpFlag = true
-		}
-		if arg == "--verbose" || arg == "-v" || arg == "-verbose" {
+		case "--verbose", "-v", "-verbose":
 			types.SetVerbose(true)
+		case "--version":
+			showVersionFlag = true
+		default:
+			fmt.Printf("Error: Unknown option '%s'\n\n", arg)
+			fmt.Println("Valid options:")
+			fmt.Println("  --help, -h     Show help information")
+			fmt.Println("  --verbose, -v  Show verbose help information")
+			fmt.Println("  --version      Show version information")
+			os.Exit(1)
 		}
+	}
+
+	if showVersionFlag {
+		showVersion()
+		return
 	}
 
 	if showHelpFlag {

@@ -135,12 +135,47 @@ func (cb *CodeBase) LoadStructures(basePath string, callBack func(*Structure, *a
 				f.Facets[i].Store = "NOT NEEDED AFTER LOAD - THIS MESSAGE PROVES IT"
 			}
 			for i := 0; i < len(f.Facets); i++ {
-				if len(f.Facets[i].DisplayName) == 0 {
+				// Use Label if provided, otherwise use DisplayName if set, otherwise fall back to Name
+				if len(f.Facets[i].Label) > 0 {
+					f.Facets[i].DisplayName = f.Facets[i].Label
+				} else if len(f.Facets[i].DisplayName) == 0 {
 					f.Facets[i].DisplayName = f.Facets[i].Name
 				}
 				f.Facets[i].Name = strings.ReplaceAll(f.Facets[i].Name, " ", "")
 			}
-			f.Settings.Facets = f.Facets // Copy facets into the Structure
+			f.Settings.Facets = f.Facets // Copy facets into the Structure			// If facetOrder is specified in TOML, reorder facets to match
+			if len(f.Settings.FacetOrder) > 0 {
+				facetMap := make(map[string]Facet)
+				for _, facet := range f.Settings.Facets {
+					facetMap[strings.ToLower(facet.Name)] = facet
+				}
+
+				orderedFacets := make([]Facet, 0, len(f.Settings.FacetOrder))
+				for _, name := range f.Settings.FacetOrder {
+					if facet, exists := facetMap[strings.ToLower(name)]; exists {
+						orderedFacets = append(orderedFacets, facet)
+						delete(facetMap, strings.ToLower(name))
+					} else {
+						logger.Warn("facetOrder references unknown facet:", name, "in structure:", f.Settings.Class)
+					}
+				}
+
+				// Append any remaining facets not in facetOrder (for safety)
+				for _, facet := range f.Settings.Facets {
+					if _, stillExists := facetMap[strings.ToLower(facet.Name)]; stillExists {
+						logger.Warn("facet not in facetOrder, appending:", facet.Name, "in structure:", f.Settings.Class)
+						orderedFacets = append(orderedFacets, facet)
+					}
+				}
+
+				f.Settings.Facets = orderedFacets
+			}
+
+			// Default menuPosition to "top" if not specified
+			if f.Settings.MenuPosition == "" {
+				f.Settings.MenuPosition = "top"
+			}
+
 			structMap[mapKey] = f.Settings
 		}
 		return nil
@@ -423,4 +458,98 @@ func (s *Structure) checkHierarchy() {
 			}
 		}
 	}
+}
+
+// ReadTomlFiles reads TOML files from ./code_gen/templates/classDefinitions
+// and returns a slice of Structure objects. If includeDisabled is false,
+// only returns structures where DisableGo is false.
+func ReadTomlFiles(includeDisabled bool) ([]Structure, error) {
+	classDefPath := "./code_gen/templates/classDefinitions"
+
+	if !file.FolderExists(classDefPath) {
+		return nil, fmt.Errorf("classDefinitions folder does not exist at %s", classDefPath)
+	}
+
+	var structures []Structure
+
+	err := filepath.Walk(classDefPath, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("error walking path %s: %w", path, err)
+		}
+
+		if info.IsDir() || !strings.HasSuffix(path, ".toml") {
+			return nil
+		}
+
+		type Tmp struct {
+			Settings Structure `toml:"settings"`
+			Facets   []Facet   `toml:"facets"`
+		}
+
+		var f Tmp
+		err = config.ReadToml(path, &f)
+		if err != nil {
+			return fmt.Errorf("failed to parse TOML file %s: %w", path, err)
+		}
+
+		// Apply the same processing as LoadStructures
+		f.Settings.Class = strings.ReplaceAll(f.Settings.Class, " ", "")
+		f.Settings.DocDescr = strings.ReplaceAll(f.Settings.DocDescr, "&#44;", ",")
+		f.Settings.ProducedBy = strings.ReplaceAll(f.Settings.ProducedBy, " ", "")
+		f.Settings.Producers = strings.Split(f.Settings.ProducedBy, ",")
+		f.Settings.ChildTabs = strings.Split(f.Settings.Children, ",")
+		f.Settings.Class = strings.Trim(f.Settings.Class, " ")
+		f.Settings.DocGroup = strings.Trim(f.Settings.DocGroup, " ")
+		f.Settings.DocDescr = strings.Trim(f.Settings.DocDescr, " ")
+		f.Settings.DocNotes = strings.Trim(f.Settings.DocNotes, " ")
+
+		if len(f.Settings.DisplayName) == 0 {
+			f.Settings.DisplayName = f.Settings.Class
+		}
+
+		// Process facets
+		for i := range f.Facets {
+			f.Facets[i].NormalizeActions()
+		}
+		for i := range f.Facets {
+			if strings.Contains(f.Facets[i].Store, ".") {
+				parts := strings.Split(f.Facets[i].Store, ".")
+				if len(parts) >= 2 {
+					f.Facets[i].StoreSource = parts[0]
+					f.Facets[i].StoreName = parts[1]
+				}
+			} else {
+				f.Facets[i].StoreSource = "sdk"
+				f.Facets[i].StoreName = f.Facets[i].Store
+			}
+			f.Facets[i].Store = "NOT NEEDED AFTER LOAD - THIS MESSAGE PROVES IT"
+		}
+		for i := 0; i < len(f.Facets); i++ {
+			// Use Label if provided, otherwise use DisplayName if set, otherwise fall back to Name
+			if len(f.Facets[i].Label) > 0 {
+				f.Facets[i].DisplayName = f.Facets[i].Label
+			} else if len(f.Facets[i].DisplayName) == 0 {
+				f.Facets[i].DisplayName = f.Facets[i].Name
+			}
+			f.Facets[i].Name = strings.ReplaceAll(f.Facets[i].Name, " ", "")
+		}
+		f.Settings.Facets = f.Facets
+
+		// Filter based on includeDisabled parameter
+		if !includeDisabled && f.Settings.DisableGo {
+			return nil // Skip disabled structures
+		}
+
+		structures = append(structures, f.Settings)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(structures) == 0 {
+		return nil, fmt.Errorf("no enabled TOML structures found in %s", classDefPath)
+	}
+
+	return structures, nil
 }

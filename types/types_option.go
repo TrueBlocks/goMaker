@@ -818,6 +818,10 @@ func (op *Option) FuzzerSwitch() string {
 func (op *Option) SdkEndpoint() string {
 	tmplName := "sdkEndpointRegular"
 	tmpl := sdkEndpointRegular
+	if op.cmdPtr.nReturnTypes() < 2 {
+		tmplName = "sdkEndpointSingularReturnType"
+		tmpl = strings.Replace(sdkEndpointRegular, "[{{.SdkCoreType}}]", "", -1)
+	}
 
 	copy := *op
 	if op.IsMode() {
