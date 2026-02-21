@@ -182,7 +182,8 @@ num,folder,group,route,tool,longName,hotKey,def_val,attributes,handler,option_ty
 26090,tools,Chain Data,traces,getTraces,n5,,,,,note,,,,,,This command requires your RPC to provide trace data. See the README for more information.
 #
 27000,tools,Chain Data,when,whenBlock,,,,visible|docs,,command,,,Get block dates,[flags] < block | date > [ block... | date... ],default|caching|,Find block(s) based on date&#44; blockNum&#44; timestamp&#44; or 'special'.
-27020,tools,Chain Data,when,whenBlock,blocks,,,visible|docs,3,positional,list<string>,namedBlock,,,,one or more dates&#44; block numbers&#44; hashes&#44; or special named blocks (see notes)
+27020,tools,Chain Data,when,whenBlock,blocks,,,visible|docs,4,positional,list<string>,namedBlock,,,,one or more dates&#44; block numbers&#44; hashes&#44; or special named blocks (see notes)
+27025,tools,Chain Data,when,whenBlock,diff,,,,3,switch,<boolean>,namedBlock,,,,show the number of blocks per period (requires a non-blockly period modifier on the block range)
 27030,tools,Chain Data,when,whenBlock,list,l,,visible|docs,1,switch,<boolean>,namedBlock,,,,export a list of the 'special' blocks
 27040,tools,Chain Data,when,whenBlock,timestamps,t,,visible|docs,2,switch,<boolean>,timestamp,,,,display or process timestamps
 27050,tools,Chain Data,when,whenBlock,count,U,,visible|docs,,switch,<boolean>,count,,,,with --timestamps only&#44; returns the number of timestamps in the cache
