@@ -820,7 +820,7 @@ func (op *Option) SdkEndpoint() string {
 	tmpl := sdkEndpointRegular
 	if op.cmdPtr.nReturnTypes() < 2 {
 		tmplName = "sdkEndpointSingularReturnType"
-		tmpl = strings.Replace(sdkEndpointRegular, "[{{.SdkCoreType}}]", "", -1)
+		tmpl = strings.ReplaceAll(sdkEndpointRegular, "[{{.SdkCoreType}}]", "")
 	}
 
 	copy := *op

@@ -41,7 +41,7 @@ func (item *Structure) ProcessFile(sourceIn, group, reason string) error {
 			result := facet.executeTemplate(tmplName, tmpl)
 			result = strings.ReplaceAll(result, "--Facet--", facet.Name)
 			if strings.Contains(dest, "Panel") && strings.Contains(tmpl, "onFinal") && !strings.Contains(name, "openapprovals") {
-				result = strings.Replace(result, "onFinal", "_onFinal", -1)
+				result = strings.ReplaceAll(result, "onFinal", "_onFinal")
 			}
 			_, err := WriteCode(dd, result)
 			if err != nil {
